@@ -11,7 +11,8 @@ class VideoBottomBar extends StatelessWidget {
   final bool isRecording;
   final Function isRecordClicked;
   final Function onNext;
-  VideoBottomBar({this.isRecording=false, this.isRecordClicked, this.onNext});
+  final Function onDelete;
+  VideoBottomBar({this.isRecording=false, this.isRecordClicked, this.onNext, this.onDelete});
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -31,7 +32,9 @@ class VideoBottomBar extends StatelessWidget {
             isRecordClicked();
           },color:isRecording? Colors.white: Colors.green, iconSize: 80,),
         ),
-        IconButton(icon: Icon(Icons.delete), onPressed: (){}, color: Colors.white),
+        IconButton(icon: Icon(Icons.delete), onPressed: (){
+          onDelete();
+        }, color: Colors.white),
         IconButton(icon: Icon(Icons.check_circle, color: Colors.green,), onPressed: (){
           onNext();
         })

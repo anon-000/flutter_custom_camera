@@ -11,7 +11,8 @@ class VideoControlBar extends StatelessWidget {
   final Function onSpeed;
   final Function onBeauty;
   final Function onTimer;
-  VideoControlBar({this.onFlip, this.onFLash,this.onBeauty, this.onSpeed, this.onTimer});
+  final bool isFlashOn;
+  VideoControlBar({this.onFlip, this.onFLash,this.onBeauty, this.onSpeed, this.onTimer, this.isFlashOn=false});
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -32,7 +33,7 @@ class VideoControlBar extends StatelessWidget {
           onTimer();
         }, color: Colors.white),
         Text("Timer",  style: TextStyle(color: Colors.white)),
-        IconButton(icon: Icon(Icons.flash_on), onPressed: () {
+        IconButton(icon: Icon(isFlashOn?Icons.flash_off:Icons.flash_on), onPressed: () {
           onFLash();
         }, color: Colors.white),
         Text("Flash",  style: TextStyle(color: Colors.white)),

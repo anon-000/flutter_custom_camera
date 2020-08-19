@@ -10,10 +10,12 @@ class VideoDatum {
   VideoDatum({
     this.path,
     this.beautyLevel,
-    this.videoSpeed
+    this.videoSpeed,
+    this.videoLength
   });
 
   String path ;
+  int videoLength;
   VideoSpeed videoSpeed;
   BeautyLevel beautyLevel;
 
@@ -21,11 +23,13 @@ class VideoDatum {
     path: json["total"] ?? '',
     beautyLevel: json["limit"] ?? BeautyLevel.medium,
     videoSpeed: json["skip"] ?? VideoSpeed.normal,
+    videoLength: json["videoLength"] ??0
   );
 
   Map<String, dynamic> toJson() => {
     "path": path,
     "beautyLevel": beautyLevel,
     "videoSpeed": videoSpeed,
+    "videoLength": videoLength
   };
 }

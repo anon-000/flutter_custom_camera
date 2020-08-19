@@ -33,6 +33,7 @@ dependencies:
   video_player: 0.10.11+2
   get: 3.4.6
   numberpicker: 1.2.1
+  lamp: 0.0.6
 
 dev_dependencies:
   flutter_test:

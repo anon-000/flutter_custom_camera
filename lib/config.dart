@@ -26,12 +26,7 @@ enum BeautyLevel{
   high
 }
 
-List<VideoSpeed> availableSpeeds = [VideoSpeed.epic, VideoSpeed.slow, VideoSpeed.normal, VideoSpeed.fast, VideoSpeed.lapse];
-List<String> speedOptions = ['Epic', 'Slow', 'Normal', 'Fast', 'Lapse'];
-List<BeautyLevel> availableBeautyLevels= [BeautyLevel.none,BeautyLevel.low, BeautyLevel.medium, BeautyLevel.high];
-List<String> beautyOptions = ['None','Low', 'Medium', 'High'];
-List<String> availableTimerDurations = ['None','5s', '10s', '15s', '20s'];
-List<int> timerOptions = [0,5,10,15,20];
+
 
 
 
