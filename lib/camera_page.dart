@@ -1,12 +1,14 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_camera/config.dart';
 import 'package:flutter_custom_camera/video_data_model.dart';
+import 'package:flutter_custom_camera/widgets/custom_progress_indicator.dart';
+import 'package:flutter_custom_camera/widgets/options_display_widget.dart';
 import 'package:flutter_custom_camera/widgets/video_bottom_bar.dart';
 import 'package:flutter_custom_camera/widgets/video_control_bar.dart';
-import 'package:flutter_custom_camera/widgets/video_length_picker.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
@@ -35,6 +37,16 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
   List<CameraDescription> cameras = [];
   CameraDescription currentCam;
   List<VideoDatum> videos = [];
+  double currentOptionOpacity = 0;
+  Widget currentOptionWidget;
+  List<Widget> optionChildren = [];
+  int currentTimerDuration = 0;
+  int videoLength = 15;
+  Timer _timer;
+  int timerCounter = 5;
+  double timerOpacity = 0;
+  Timer _videoTimer;
+  int videoTimeCounter = 0;
 
 
   @override
@@ -42,13 +54,58 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     initializeCamera();
+    initializeOptions();
+
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _timer.cancel();
+    _videoTimer.cancel();
     super.dispose();
   }
+
+  ///Timer
+  void startTimer() {
+    const oneSec = const Duration(seconds: 1);
+    _timer = Timer.periodic(
+      oneSec,
+          (Timer timer) {
+        setState(
+              () {
+            if (timerCounter < 1) {
+              timerOpacity = 0;
+              timer.cancel();
+            } else {
+              timerOpacity = 1;
+              timerCounter = timerCounter - 1;
+            }
+          },
+        );
+      },
+    );
+  }
+  void startVideoTimer() {
+    const oneSec = const Duration(seconds: 1);
+    _videoTimer = Timer.periodic(
+      oneSec,
+          (Timer timer) {
+        setState(
+              () {
+            if (videoTimeCounter == 15) {
+              timer.cancel();
+              onStopButtonPressed();
+            } else {
+              videoTimeCounter = videoTimeCounter + 1;
+            }
+          },
+        );
+      },
+    );
+  }
+
+
 
   Future<void> initializeCamera() async {
     try {
@@ -58,6 +115,40 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
     } on CameraException catch (e) {
       print(e.description);
     }
+  }
+
+  void initializeOptions(){
+    optionChildren = [
+      OptionsDisplayWidget(
+        currentIndex: availableSpeeds.indexOf(videoSpeed),
+        onTap: (index){
+         setState(() {
+           videoSpeed = availableSpeeds[index];
+         });
+        },
+        data: speedOptions,
+      ),
+      OptionsDisplayWidget(
+        currentIndex: availableBeautyLevels.indexOf(beautyLevel),
+        onTap: (index){
+          setState(() {
+            print("beauty selected");
+            beautyLevel = availableBeautyLevels[index];
+          });
+        },
+        data: beautyOptions,
+      ),
+      OptionsDisplayWidget(
+        currentIndex: timerOptions.indexOf(currentTimerDuration),
+        onTap: (index){
+          setState(() {
+            currentTimerDuration = timerOptions[index];
+          });
+        },
+        data: availableTimerDurations,
+      )
+    ];
+    currentOptionWidget = optionChildren[0];
   }
 
   @override
@@ -106,15 +197,27 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
                     onNewCameraSelected(cameras[0]);
                   }
                 },
+                onSpeed: (){
+                  setState(() {
+                    currentOptionWidget = optionChildren[0];
+                    currentOptionOpacity = 1;
+                  });
+                },
+                onBeauty: (){
+                  setState(() {
+                    currentOptionWidget = optionChildren[1];
+                    currentOptionOpacity = 1;
+                  });
+                },
+                onTimer: (){
+                  setState(() {
+                    currentOptionWidget = optionChildren[2];
+                    currentOptionOpacity = 1;
+                  });
+                },
                 onFLash: (){
                 },
               )
-          ),
-          Positioned(
-              bottom: -20,
-              right: 0,
-              left: 0,
-              child: VideoLengthPicker()
           ),
           Positioned(
             bottom: 60,
@@ -124,6 +227,7 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
                 isRecording: controller.value.isRecordingVideo,
                 isRecordClicked: (){
                   print("hi");
+                  currentOptionOpacity = 0;
                   if(!controller.value.isRecordingVideo){
                     print("time to record");
                     onVideoRecordButtonPressed();
@@ -132,8 +236,53 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
                     onStopButtonPressed();
                   }
                 },
+                onNext: (){
+                  print("clicked");
+                  print(videos.length.toString());
+                  for(VideoDatum video in videos){
+                    print('path to video :' + video.path);
+                  }
+                },
               )
           ),
+          Positioned(
+            bottom: 160,
+              right: 0,
+              left: 0,
+              child: AnimatedOpacity(
+                opacity: currentOptionOpacity,
+                duration: Duration(milliseconds: 600),
+                child: AnimatedSwitcher(
+                    duration: Duration(milliseconds: 300),
+                  child: currentOptionWidget,
+                ),
+              )
+          ),
+          Positioned(
+            right: 0,
+            left: 0,
+            bottom: 40,
+            child: CustomProgressIndicator(
+              valueInPercent: (videoTimeCounter/videoLength)*100,
+            ),
+          ),
+          Positioned(
+            right: 0,
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: Container(child: Center(
+                  child: AnimatedOpacity(
+                    opacity: timerOpacity,
+                      duration: Duration(milliseconds: 300),
+                      child: Text(timerCounter.toString(), style: TextStyle(fontSize: 35, color: Colors.white),))
+              ))
+          ),
+          Positioned(
+            top: 30,
+              left: 10,
+              child: Text(videoTimeCounter.toString(), style: TextStyle(fontSize: 35, color: Colors.white))
+          )
 
         ],
       ):Container(),
@@ -156,7 +305,7 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
     controller.addListener(() {
       if (mounted) setState(() {});
       if (controller.value.hasError) {
-        Get.snackbar('Camera error ${controller.value.errorDescription}', '');
+        SnackBarHelper.show('Camera error ${controller.value.errorDescription}', '');
       }
     });
 
@@ -172,22 +321,36 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
   }
 
   void onVideoRecordButtonPressed() {
-    startVideoRecording().then((String filePath) {
-      if (mounted) setState(() {});
-      print('Saving video to $filePath');
-      if (filePath != null) Get.snackbar('Saving video to $filePath', '');
+    setState(() {
+      timerCounter = 5;
+    });
+    startTimer();
+    Future.delayed(Duration(seconds: timerCounter)).then((value){
+      startVideoTimer();
+      startVideoRecording().then((String filePath) {
+        if (mounted) setState(() {});
+        print('Saving video to $filePath');
+        if (filePath != null) SnackBarHelper.show('Saving video to $filePath', '');
+      });
     });
   }
   void onStopButtonPressed() {
+    _videoTimer.cancel();
     stopVideoRecording().then((_) {
       if (mounted) setState(() {});
-      Get.snackbar('Video recorded to: $videoPath', '');
+      SnackBarHelper.show('Video recorded to: $videoPath', '');
+      VideoDatum data = VideoDatum(
+          path: videoPath,
+          beautyLevel: beautyLevel,
+          videoSpeed: videoSpeed
+      );
+      videos.add(data);
     });
   }
 
   Future<String> startVideoRecording() async {
     if (!controller.value.isInitialized) {
-      Get.snackbar('Error: select a camera first.', '');
+      SnackBarHelper.show('Error: select a camera first.', '');
       return null;
     }
 
@@ -219,15 +382,13 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
     try {
       await controller.stopVideoRecording();
       print("video recoring stooped.. saved to"+videoPath);
+
     } on CameraException catch (e) {
       print(e?.toString());
       return null;
     }
-    videos.add(VideoDatum(
-      path: videoPath,
-      beautyLevel: beautyLevel,
-      videoSpeed: videoSpeed
-    ));
+
   }
 
 }
+

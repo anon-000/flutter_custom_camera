@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 ///
@@ -9,7 +10,8 @@ import 'package:flutter/material.dart';
 class VideoBottomBar extends StatelessWidget {
   final bool isRecording;
   final Function isRecordClicked;
-  VideoBottomBar({this.isRecording=false, this.isRecordClicked});
+  final Function onNext;
+  VideoBottomBar({this.isRecording=false, this.isRecordClicked, this.onNext});
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -17,12 +19,22 @@ class VideoBottomBar extends StatelessWidget {
       children: [
         IconButton(icon: Icon(Icons.image), onPressed: (){}, color: Colors.white,),
         IconButton(icon: Icon(Icons.grid_on), onPressed: (){}, color: Colors.white,),
-        IconButton(icon: Icon(isRecording?Icons.stop:Icons.play_circle_filled),
-          onPressed: (){
-          isRecordClicked();
-        },color: Colors.white, iconSize: 80,),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.3),
+            shape: BoxShape.circle
+          ),
+          child: IconButton(
+            padding: const EdgeInsets.all(0),
+            icon: Icon(isRecording?Icons.stop:Icons.fiber_manual_record),
+            onPressed: (){
+            isRecordClicked();
+          },color:isRecording? Colors.white: Colors.green, iconSize: 80,),
+        ),
         IconButton(icon: Icon(Icons.delete), onPressed: (){}, color: Colors.white),
-        IconButton(icon: Icon(Icons.check_circle, color: Colors.green,), onPressed: (){})
+        IconButton(icon: Icon(Icons.check_circle, color: Colors.green,), onPressed: (){
+          onNext();
+        })
       ],
     );
   }

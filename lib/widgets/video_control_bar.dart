@@ -8,7 +8,10 @@ import 'package:flutter/material.dart';
 class VideoControlBar extends StatelessWidget {
   final Function onFlip;
   final Function onFLash;
-  VideoControlBar({this.onFlip, this.onFLash});
+  final Function onSpeed;
+  final Function onBeauty;
+  final Function onTimer;
+  VideoControlBar({this.onFlip, this.onFLash,this.onBeauty, this.onSpeed, this.onTimer});
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -17,11 +20,17 @@ class VideoControlBar extends StatelessWidget {
           onFlip();
         }, color: Colors.white,),
         Text("Flip", style: TextStyle(color: Colors.white),),
-        IconButton(icon: Icon(Icons.directions_run), onPressed: () {}, color: Colors.white),
+        IconButton(icon: Icon(Icons.directions_run), onPressed: () {
+          onSpeed();
+        }, color: Colors.white),
         Text("Speed",  style: TextStyle(color: Colors.white)),
-        IconButton(icon: Icon(Icons.brush), onPressed: () {}, color: Colors.white),
+        IconButton(icon: Icon(Icons.brush), onPressed: () {
+          onBeauty();
+        }, color: Colors.white),
         Text("Beauty",  style: TextStyle(color: Colors.white)),
-        IconButton(icon: Icon(Icons.timer), onPressed: () {}, color: Colors.white),
+        IconButton(icon: Icon(Icons.timer), onPressed: () {
+          onTimer();
+        }, color: Colors.white),
         Text("Timer",  style: TextStyle(color: Colors.white)),
         IconButton(icon: Icon(Icons.flash_on), onPressed: () {
           onFLash();
