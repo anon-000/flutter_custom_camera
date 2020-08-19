@@ -9,6 +9,7 @@ import 'package:flutter_custom_camera/widgets/custom_progress_indicator.dart';
 import 'package:flutter_custom_camera/widgets/options_display_widget.dart';
 import 'package:flutter_custom_camera/widgets/video_bottom_bar.dart';
 import 'package:flutter_custom_camera/widgets/video_control_bar.dart';
+import 'package:flutter_custom_camera/widgets/video_length_picker.dart';
 import 'package:get/get.dart';
 import 'package:lamp/lamp.dart';
 import 'package:path_provider/path_provider.dart';
@@ -38,6 +39,7 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
   List<Widget> optionChildren = [];
   int currentTimerDuration = 5;
   int videoLength = 15;
+  List<int> videoLengths = [15,30,45,60];
   Timer _timer;
   int timerCounter = 5;
   double timerOpacity = 0;
@@ -51,6 +53,7 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
   List<String> beautyOptions = ['None','Low', 'Medium', 'High'];
   List<String> availableTimerDurations = ['None','5s', '10s', '15s', '20s'];
   List<int> timerOptions = [0,5,10,15,20];
+  bool progressIndicatorActive = false;
 
   @override
   void initState() {
@@ -94,7 +97,7 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
           (Timer timer) {
         setState(
               () {
-            if (videoTimeCounter == 15) {
+            if (videoTimeCounter == videoLength) {
               timer.cancel();
               onStopButtonPressed();
             } else {
@@ -215,7 +218,7 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
                   currentOptionOpacity = 0;
                   if(!controller.value.isRecordingVideo){
                     print("time to record");
-                    if(videoTimeCounter!=15){
+                    if(videoTimeCounter != videoLength){
                       onVideoRecordButtonPressed();
                     }
                   }else{
@@ -242,8 +245,10 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
                   setState(() {
                     videoTimeCounter = lastVideoTimeCounter.elementAt(lastVideoTimeCounter.length-1);
                     lastVideoTimeCounter.removeLast();
+                    if(videos.isEmpty){
+                      progressIndicatorActive = false;
+                    }
                   });
-                  SnackBarHelper.show("Deleted", "Last Clip Deleted Successfully");
                 },
               )
           ),
@@ -263,11 +268,17 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
           Positioned(
             right: 0,
             left: 0,
-            bottom: 40,
-            child: CustomProgressIndicator(
+            bottom: progressIndicatorActive?25:4,
+            child: progressIndicatorActive?CustomProgressIndicator(
               valueInPercent: (videoTimeCounter/videoLength)*100,
               max: videoLength,
               partitions: lastVideoTimeCounter,
+            ):VideoLengthPicker(
+              onChanged: (videoLengthIndex){
+                setState(() {
+                  videoLength = videoLengths[videoLengthIndex];
+                });
+              },
             ),
           ),
           Positioned(
@@ -283,9 +294,25 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
               ))
           ),
           Positioned(
-            top: 30,
-              left: 10,
+            bottom: 20,
+              left: 75,
               child: Text(videoTimeCounter.toString(), style: TextStyle(fontSize: 35, color: Colors.white))
+          ),
+          Positioned(
+            top: 35,
+            right: 0,
+              left: 0,
+              child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.music_note,size: 25, color: Colors.white,),
+              Text("Add Music", style: TextStyle(color: Colors.white),)
+            ],
+          )),
+          Positioned(
+            top: 30,
+              left: 16,
+              child: Icon(Icons.clear, size: 30, color: Colors.white,)
           )
 
         ],
@@ -324,6 +351,7 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
     setState(() {
       timerCounter = currentTimerDuration;
       lastVideoTimeCounter.add(videoTimeCounter) ;
+      progressIndicatorActive = true;
     });
     startTimer();
     Future.delayed(Duration(seconds: timerCounter)).then((value){
@@ -339,7 +367,7 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
     _videoTimer.cancel();
     stopVideoRecording().then((_) {
       if (mounted) setState(() {});
-      SnackBarHelper.show('Video recorded to: $videoPath', '');
+      print('Video recorded to: $videoPath');
       VideoDatum data = VideoDatum(
           path: videoPath,
           beautyLevel: beautyLevel,

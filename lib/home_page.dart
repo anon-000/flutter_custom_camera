@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_camera/camera_page.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,12 +22,13 @@ class _HomePageState extends State<HomePage> {
         title: Text("Custom Camera App"),
       ),
       body: Center(
-        child: RaisedButton(
-          color: Colors.teal,
-          onPressed: () {
-            Get.to(CameraPage());
-          },
-          child: Text("Open Camera"),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            RaisedButton(child :  Text("Open Camera"),onPressed: (){
+              Get.to(CameraPage());
+            })
+          ],
         ),
       ),
     );
