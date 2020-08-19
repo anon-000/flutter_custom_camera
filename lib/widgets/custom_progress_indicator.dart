@@ -13,7 +13,9 @@ class CustomProgressIndicator extends StatelessWidget {
   final Color valueColor;
   final double valueInPercent;
   final double width;
-  CustomProgressIndicator({this.height, this.backgroundColor, this.valueColor, @required this.valueInPercent, this.width});
+  final int max;
+  final List<int> partitions;
+  CustomProgressIndicator({this.height, this.backgroundColor, this.valueColor, @required this.valueInPercent, this.width, this.partitions= const [], this.max=0});
   @override
   Widget build(BuildContext context) {
     double defaultWidth = Get.width/1.2;
@@ -31,7 +33,8 @@ class CustomProgressIndicator extends StatelessWidget {
             ),
             Row(
               children: [
-                Container(
+                AnimatedContainer(
+                  duration: Duration(seconds: 1),
                   height: height??5,
                   width: width==null? (valueInPercent/100)*defaultWidth : (valueInPercent/100)*width,
                   decoration: BoxDecoration(
@@ -50,6 +53,25 @@ class CustomProgressIndicator extends StatelessWidget {
                 )
 
               ],
+            ),
+            Container(
+              height: height??5,
+              width: width??defaultWidth,
+              child: Stack(
+                children: partitions.map((e) =>Positioned(
+                  left: width==null? ((e/max*100)/100)*defaultWidth : ((e/max*100)/100)*width,
+                  child: Transform.scale(
+                    scale: 1.6,
+                    child: Container(
+                      height: 5,
+                      width: 3,
+                      decoration: BoxDecoration(
+                          color: Colors.white
+                      ),
+                    ),
+                  ),
+                )).toList(),
+              ),
             )
           ],
         ),

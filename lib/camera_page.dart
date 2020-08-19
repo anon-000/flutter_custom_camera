@@ -12,7 +12,6 @@ import 'package:flutter_custom_camera/widgets/video_control_bar.dart';
 import 'package:get/get.dart';
 import 'package:lamp/lamp.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:video_player/video_player.dart';
 
 ///
 /// Created By AURO (aurosmruti@smarttersstudio.com) on 8/18/2020 8:22 PM
@@ -31,9 +30,6 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
   String videoPath;
   BeautyLevel beautyLevel = BeautyLevel.none;
   VideoSpeed videoSpeed = VideoSpeed.normal;
-  VideoPlayerController videoController;
-  VoidCallback videoPlayerListener;
-  CameraLensDirection direction = CameraLensDirection.back;
   List<CameraDescription> cameras = [];
   CameraDescription currentCam;
   List<VideoDatum> videos = [];
@@ -270,6 +266,8 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
             bottom: 40,
             child: CustomProgressIndicator(
               valueInPercent: (videoTimeCounter/videoLength)*100,
+              max: videoLength,
+              partitions: lastVideoTimeCounter,
             ),
           ),
           Positioned(
