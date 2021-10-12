@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 ///
 
 class VideoLengthPicker extends StatefulWidget {
-  final Function(int i) onChanged;
+  final Function(int i)? onChanged;
+
   VideoLengthPicker({this.onChanged});
+
   @override
   _VideoLengthPickerState createState() => _VideoLengthPickerState();
 }
@@ -30,7 +32,10 @@ class _VideoLengthPickerState extends State<VideoLengthPicker> {
             child: Text(
               ((index * 15 + 15)).toString() + ' Sec',
               style: index == currentIndex
-                  ? TextStyle(fontSize: 16, fontWeight: FontWeight.w600,color: Colors.white)
+                  ? TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white)
                   : TextStyle(color: Colors.grey.withOpacity(0.6)),
             ),
           );
@@ -42,7 +47,7 @@ class _VideoLengthPickerState extends State<VideoLengthPicker> {
           print(index.toString());
           setState(() {
             currentIndex = index;
-            widget.onChanged(index);
+            widget.onChanged!.call(index);
           });
         },
       ),
@@ -53,16 +58,16 @@ class _VideoLengthPickerState extends State<VideoLengthPicker> {
 class ListWheelScrollViewX extends StatelessWidget {
   final Widget Function(BuildContext, int) builder;
   final Axis scrollDirection;
-  final FixedExtentScrollController controller;
+  final FixedExtentScrollController? controller;
   final double itemExtent;
   final double diameterRatio;
   final int itemCount;
-  final void Function(int) onSelectedItemChanged;
+  final void Function(int)? onSelectedItemChanged;
 
   const ListWheelScrollViewX(
-      {Key key,
-      @required this.builder,
-      @required this.itemExtent,
+      {Key? key,
+      required this.builder,
+      required this.itemExtent,
       this.controller,
       this.onSelectedItemChanged,
       this.scrollDirection = Axis.vertical,

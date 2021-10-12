@@ -11,6 +11,7 @@ import 'package:flutter_custom_camera/widgets/video_bottom_bar.dart';
 import 'package:flutter_custom_camera/widgets/video_control_bar.dart';
 import 'package:flutter_custom_camera/widgets/video_length_picker.dart';
 import 'package:get/get.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:lamp/lamp.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -25,59 +26,71 @@ class CameraPage extends StatefulWidget {
   _CameraPageState createState() => _CameraPageState();
 }
 
-class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
-  CameraController controller;
-  String imagePath;
-  String videoPath;
+class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
+  late CameraController controller;
+  String? imagePath;
+  String? videoPath;
   BeautyLevel beautyLevel = BeautyLevel.none;
   VideoSpeed videoSpeed = VideoSpeed.normal;
   List<CameraDescription> cameras = [];
-  CameraDescription currentCam;
+  CameraDescription? currentCam;
   List<VideoDatum> videos = [];
   double currentOptionOpacity = 0;
-  Widget currentOptionWidget;
+  Widget? currentOptionWidget;
   List<Widget> optionChildren = [];
   int currentTimerDuration = 5;
   int videoLength = 15;
-  List<int> videoLengths = [15,30,45,60];
-  Timer _timer;
+  List<int> videoLengths = [15, 30, 45, 60];
+  Timer? _timer;
   int timerCounter = 5;
   double timerOpacity = 0;
-  Timer _videoTimer;
+  Timer? _videoTimer;
   int videoTimeCounter = 0;
   bool hasFlash = false, isFlashOn = false;
   List<int> lastVideoTimeCounter = [];
-  List<VideoSpeed> availableSpeeds = [VideoSpeed.epic, VideoSpeed.slow, VideoSpeed.normal, VideoSpeed.fast, VideoSpeed.lapse];
+  List<VideoSpeed> availableSpeeds = [
+    VideoSpeed.epic,
+    VideoSpeed.slow,
+    VideoSpeed.normal,
+    VideoSpeed.fast,
+    VideoSpeed.lapse
+  ];
   List<String> speedOptions = ['Epic', 'Slow', 'Normal', 'Fast', 'Lapse'];
-  List<BeautyLevel> availableBeautyLevels= [BeautyLevel.none,BeautyLevel.low, BeautyLevel.medium, BeautyLevel.high];
-  List<String> beautyOptions = ['None','Low', 'Medium', 'High'];
-  List<String> availableTimerDurations = ['None','5s', '10s', '15s', '20s'];
-  List<int> timerOptions = [0,5,10,15,20];
+  List<BeautyLevel> availableBeautyLevels = [
+    BeautyLevel.none,
+    BeautyLevel.low,
+    BeautyLevel.medium,
+    BeautyLevel.high
+  ];
+  List<String> beautyOptions = ['None', 'Low', 'Medium', 'High'];
+  List<String> availableTimerDurations = ['None', '5s', '10s', '15s', '20s'];
+  List<int> timerOptions = [0, 5, 10, 15, 20];
   bool progressIndicatorActive = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance!.addObserver(this);
     initializeCamera();
     initializeOptions();
-
   }
+
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _timer?.cancel();
-    _videoTimer?.cancel();
+    WidgetsBinding.instance!.removeObserver(this);
+    _timer!.cancel();
+    _videoTimer!.cancel();
     super.dispose();
   }
+
   ///Timer
   void startTimer() {
     const oneSec = const Duration(seconds: 1);
     _timer = Timer.periodic(
       oneSec,
-          (Timer timer) {
+      (Timer timer) {
         setState(
-              () {
+          () {
             if (timerCounter < 1) {
               timerOpacity = 0;
               timer.cancel();
@@ -90,13 +103,14 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
       },
     );
   }
+
   void startVideoTimer() {
     const oneSec = const Duration(seconds: 1);
     _videoTimer = Timer.periodic(
       oneSec,
-          (Timer timer) {
+      (Timer timer) {
         setState(
-              () {
+          () {
             if (videoTimeCounter == videoLength) {
               timer.cancel();
               onStopButtonPressed();
@@ -120,7 +134,7 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
     }
   }
 
-  void initializeOptions(){
+  void initializeOptions() {
     optionChildren = [
       videoSpeedSelection(),
       beautySelection(),
@@ -144,183 +158,206 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final deviceRatio = size.width / size.height;
     return Scaffold(
       backgroundColor: Colors.black,
-      body: controller!=null?Stack(
-        children: [
-          Transform.scale(
-              scale:  controller.value.aspectRatio / deviceRatio,
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: controller?.value?.aspectRatio,
-                  child: CameraPreview(controller,), //cameraPreview
+      body: controller != null
+          ? Stack(
+              children: [
+                Transform.scale(
+                    scale: controller.value.aspectRatio / deviceRatio,
+                    child: Center(
+                      child: AspectRatio(
+                        aspectRatio: controller.value.aspectRatio ?? 0.0,
+                        child: CameraPreview(
+                          controller,
+                        ), //cameraPreview
+                      ),
+                    )),
+                Positioned(
+                    top: 80,
+                    right: 15,
+                    child: VideoControlBar(
+                      isFlashOn: isFlashOn,
+                      onFlip: () {
+                        if (currentCam == cameras.first) {
+                          currentCam = cameras[1];
+                          onNewCameraSelected(cameras[1]);
+                        } else {
+                          currentCam = cameras[0];
+                          onNewCameraSelected(cameras[0]);
+                        }
+                      },
+                      onSpeed: () {
+                        setState(() {
+                          currentOptionWidget = videoSpeedSelection();
+                          currentOptionOpacity = 1;
+                        });
+                      },
+                      onBeauty: () {
+                        setState(() {
+                          currentOptionWidget = beautySelection();
+                          currentOptionOpacity = 1;
+                        });
+                      },
+                      onTimer: () {
+                        setState(() {
+                          currentOptionWidget = timerSelection();
+                          currentOptionOpacity = 1;
+                        });
+                      },
+                      onFLash: () {
+                        if (hasFlash) {
+                          if (isFlashOn) {
+                            Lamp.turnOff();
+                          } else {
+                            Lamp.turnOn();
+                          }
+                        }
+                        {
+                          SnackBarHelper.show(
+                              "Error", "You have no flash available");
+                        }
+                      },
+                    )),
+                Positioned(
+                    bottom: 60,
+                    right: 0,
+                    left: 0,
+                    child: VideoBottomBar(
+                      isRecording: controller.value.isRecordingVideo,
+                      isRecordClicked: () {
+                        print("hi");
+                        currentOptionOpacity = 0;
+                        if (!controller.value.isRecordingVideo) {
+                          print("time to record");
+                          if (videoTimeCounter != videoLength) {
+                            onVideoRecordButtonPressed();
+                          }
+                        } else {
+                          print("time to stop");
+                          onStopButtonPressed();
+                        }
+                      },
+                      onNext: () {
+                        print("clicked");
+                        print(videos.length.toString());
+                        for (VideoDatum video in videos) {
+                          print('path to video :' + "${video.path}");
+                        }
+                        Get.to(SavedVideoPage(
+                          videos: videos,
+                        ));
+                      },
+                      onDelete: () {
+                        String path =
+                            videos.elementAt(videos.length - 1).path ?? "";
+                        final dir = Directory(path);
+                        dir.deleteSync(recursive: true);
+                        videos.removeLast();
+                        print("deleted");
+                        print("last time counter :" +
+                            lastVideoTimeCounter.toString());
+                        print("recent time counter :" +
+                            videoTimeCounter.toString());
+                        setState(() {
+                          videoTimeCounter = lastVideoTimeCounter
+                              .elementAt(lastVideoTimeCounter.length - 1);
+                          lastVideoTimeCounter.removeLast();
+                          if (videos.isEmpty) {
+                            progressIndicatorActive = false;
+                          }
+                        });
+                      },
+                    )),
+                Positioned(
+                    bottom: 160,
+                    right: 0,
+                    left: 0,
+                    child: AnimatedOpacity(
+                      opacity: currentOptionOpacity,
+                      duration: Duration(milliseconds: 600),
+                      child: AnimatedSwitcher(
+                        duration: Duration(milliseconds: 300),
+                        child: currentOptionWidget,
+                      ),
+                    )),
+                Positioned(
+                  right: 0,
+                  left: 0,
+                  bottom: progressIndicatorActive ? 25 : 4,
+                  child: progressIndicatorActive
+                      ? CustomProgressIndicator(
+                          valueInPercent:
+                              (videoTimeCounter / videoLength) * 100,
+                          max: videoLength,
+                          partitions: lastVideoTimeCounter,
+                        )
+                      : VideoLengthPicker(
+                          onChanged: (videoLengthIndex) {
+                            setState(() {
+                              videoLength = videoLengths[videoLengthIndex];
+                            });
+                          },
+                        ),
                 ),
-              )
-          ),
-          Positioned(
-            top: 80,
-              right: 15,
-              child: VideoControlBar(
-                isFlashOn: isFlashOn,
-                onFlip: (){
-                  if(currentCam==cameras.first){
-                    currentCam = cameras[1];
-                    onNewCameraSelected(cameras[1]);
-                  }else{
-                    currentCam = cameras[0];
-                    onNewCameraSelected(cameras[0]);
-                  }
-                },
-                onSpeed: (){
-                  setState(() {
-                    currentOptionWidget = videoSpeedSelection();
-                    currentOptionOpacity = 1;
-                  });
-                },
-                onBeauty: (){
-                  setState(() {
-                    currentOptionWidget = beautySelection();
-                    currentOptionOpacity = 1;
-                  });
-                },
-                onTimer: (){
-                  setState(() {
-                    currentOptionWidget = timerSelection();
-                    currentOptionOpacity = 1;
-                  });
-                },
-                onFLash: (){
-                  if(hasFlash){
-                    if(isFlashOn){
-                      Lamp.turnOff();
-                    }else{
-                      Lamp.turnOn();
-                    }
-                  }{
-                    SnackBarHelper.show("Error", "You have no flash available");
-                  }
-                },
-              )
-          ),
-          Positioned(
-            bottom: 60,
-              right: 0,
-              left: 0,
-              child: VideoBottomBar(
-                isRecording: controller.value.isRecordingVideo,
-                isRecordClicked: (){
-                  print("hi");
-                  currentOptionOpacity = 0;
-                  if(!controller.value.isRecordingVideo){
-                    print("time to record");
-                    if(videoTimeCounter != videoLength){
-                      onVideoRecordButtonPressed();
-                    }
-                  }else{
-                    print("time to stop");
-                    onStopButtonPressed();
-                  }
-                },
-                onNext: (){
-                  print("clicked");
-                  print(videos.length.toString());
-                  for(VideoDatum video in videos){
-                    print('path to video :' + video.path);
-                  }
-                  Get.to(SavedVideoPage(videos: videos,));
-                },
-                onDelete: (){
-                  String path = videos.elementAt(videos.length-1).path;
-                  final dir = Directory(path);
-                  dir.deleteSync(recursive: true);
-                  videos.removeLast();
-                  print("deleted");
-                  print("last time counter :"+lastVideoTimeCounter.toString());
-                  print("recent time counter :"+videoTimeCounter.toString());
-                  setState(() {
-                    videoTimeCounter = lastVideoTimeCounter.elementAt(lastVideoTimeCounter.length-1);
-                    lastVideoTimeCounter.removeLast();
-                    if(videos.isEmpty){
-                      progressIndicatorActive = false;
-                    }
-                  });
-                },
-              )
-          ),
-          Positioned(
-            bottom: 160,
-              right: 0,
-              left: 0,
-              child: AnimatedOpacity(
-                opacity: currentOptionOpacity,
-                duration: Duration(milliseconds: 600),
-                child: AnimatedSwitcher(
-                    duration: Duration(milliseconds: 300),
-                  child: currentOptionWidget,
-                ),
-              )
-          ),
-          Positioned(
-            right: 0,
-            left: 0,
-            bottom: progressIndicatorActive?25:4,
-            child: progressIndicatorActive?CustomProgressIndicator(
-              valueInPercent: (videoTimeCounter/videoLength)*100,
-              max: videoLength,
-              partitions: lastVideoTimeCounter,
-            ):VideoLengthPicker(
-              onChanged: (videoLengthIndex){
-                setState(() {
-                  videoLength = videoLengths[videoLengthIndex];
-                });
-              },
-            ),
-          ),
-          Positioned(
-            right: 0,
-              left: 0,
-              top: 0,
-              bottom: 0,
-              child: Container(child: Center(
-                  child: AnimatedOpacity(
-                    opacity: timerOpacity,
-                      duration: Duration(milliseconds: 300),
-                      child: Text(timerCounter.toString(), style: TextStyle(fontSize: 35, color: Colors.white),))
-              ))
-          ),
-          Positioned(
-            bottom: 20,
-              left: 75,
-              child: Text(videoTimeCounter.toString(), style: TextStyle(fontSize: 35, color: Colors.white))
-          ),
-          Positioned(
-            top: 35,
-            right: 0,
-              left: 0,
-              child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.music_note,size: 25, color: Colors.white,),
-              Text("Add Music", style: TextStyle(color: Colors.white),)
-            ],
-          )),
-          Positioned(
-            top: 30,
-              left: 16,
-              child: Icon(Icons.clear, size: 30, color: Colors.white,)
-          )
-
-        ],
-      ):Container(),
+                Positioned(
+                    right: 0,
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Container(
+                        child: Center(
+                            child: AnimatedOpacity(
+                                opacity: timerOpacity,
+                                duration: Duration(milliseconds: 300),
+                                child: Text(
+                                  timerCounter.toString(),
+                                  style: TextStyle(
+                                      fontSize: 35, color: Colors.white),
+                                ))))),
+                Positioned(
+                    bottom: 20,
+                    left: 75,
+                    child: Text(videoTimeCounter.toString(),
+                        style: TextStyle(fontSize: 35, color: Colors.white))),
+                Positioned(
+                    top: 35,
+                    right: 0,
+                    left: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.music_note,
+                          size: 25,
+                          color: Colors.white,
+                        ),
+                        Text(
+                          "Add Music",
+                          style: TextStyle(color: Colors.white),
+                        )
+                      ],
+                    )),
+                Positioned(
+                    top: 30,
+                    left: 16,
+                    child: Icon(
+                      Icons.clear,
+                      size: 30,
+                      color: Colors.white,
+                    ))
+              ],
+            )
+          : Container(),
     );
   }
 
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
+
   void onNewCameraSelected(CameraDescription cameraDescription) async {
     if (controller != null) {
       await controller.dispose();
@@ -350,21 +387,22 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
   void onVideoRecordButtonPressed() {
     setState(() {
       timerCounter = currentTimerDuration;
-      lastVideoTimeCounter.add(videoTimeCounter) ;
+      lastVideoTimeCounter.add(videoTimeCounter);
       progressIndicatorActive = true;
     });
     startTimer();
-    Future.delayed(Duration(seconds: timerCounter)).then((value){
+    Future.delayed(Duration(seconds: timerCounter)).then((value) {
       startVideoTimer();
-      startVideoRecording().then((String filePath) {
+      startVideoRecording().then((String? filePath) {
         if (mounted) setState(() {});
         print('Saving video to $filePath');
         if (filePath != null) print('Saving video to $filePath');
       });
     });
   }
+
   void onStopButtonPressed() {
-    _videoTimer.cancel();
+    _videoTimer!.cancel();
     stopVideoRecording().then((_) {
       if (mounted) setState(() {});
       print('Video recorded to: $videoPath');
@@ -372,13 +410,12 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
           path: videoPath,
           beautyLevel: beautyLevel,
           videoSpeed: videoSpeed,
-        videoLength: videoTimeCounter-lastVideoTimeCounter.last
-      );
+          videoLength: videoTimeCounter - lastVideoTimeCounter.last);
       videos.add(data);
     });
   }
 
-  Future<String> startVideoRecording() async {
+  Future<String?> startVideoRecording() async {
     if (!controller.value.isInitialized) {
       SnackBarHelper.show('Error: select a camera first.', '');
       return null;
@@ -396,7 +433,7 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
 
     try {
       videoPath = filePath;
-      await controller.startVideoRecording(filePath);
+      await controller.startVideoRecording();
     } on CameraException catch (e) {
       print(e?.toString());
       return null;
@@ -411,22 +448,22 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
 
     try {
       await controller.stopVideoRecording();
-      print("video recording stooped.. saved to"+videoPath);
+      print("video recording stooped.. saved to" + videoPath!);
     } on CameraException catch (e) {
-      print(e?.toString());
+      print(e.toString());
       return null;
     }
-
   }
 
-  Widget videoSpeedSelection(){
+  Widget videoSpeedSelection() {
     return OptionsDisplayWidget(
       currentIndex: availableSpeeds.indexOf(videoSpeed),
-      onTap: (index){
+      onTap: (index) {
         setState(() {
           videoSpeed = availableSpeeds[index];
-          print("video speed :"+videoSpeed.toString());
-          print("spped index :" +availableSpeeds.indexOf(videoSpeed).toString());
+          print("video speed :" + videoSpeed.toString());
+          print(
+              "spped index :" + availableSpeeds.indexOf(videoSpeed).toString());
           currentOptionWidget = videoSpeedSelection();
         });
       },
@@ -434,35 +471,36 @@ class _CameraPageState extends State<CameraPage>  with WidgetsBindingObserver {
     );
   }
 
-  Widget beautySelection(){
+  Widget beautySelection() {
     return OptionsDisplayWidget(
       currentIndex: availableBeautyLevels.indexOf(beautyLevel),
-      onTap: (index){
+      onTap: (index) {
         setState(() {
           beautyLevel = availableBeautyLevels[index];
-          print("beauty selected : "+beautyLevel.toString());
-          print('index'+availableBeautyLevels.indexOf(beautyLevel).toString());
+          print("beauty selected : " + beautyLevel.toString());
+          print(
+              'index' + availableBeautyLevels.indexOf(beautyLevel).toString());
           currentOptionWidget = beautySelection();
         });
       },
       data: beautyOptions,
     );
   }
-  Widget timerSelection(){
+
+  Widget timerSelection() {
     return OptionsDisplayWidget(
       currentIndex: timerOptions.indexOf(currentTimerDuration),
-      onTap: (index){
+      onTap: (index) {
         setState(() {
           currentTimerDuration = timerOptions[index];
           timerCounter = currentTimerDuration;
-          print('current timer :'+currentTimerDuration.toString());
-          print('timer index :' +timerOptions.indexOf(currentTimerDuration).toString());
+          print('current timer :' + currentTimerDuration.toString());
+          print('timer index :' +
+              timerOptions.indexOf(currentTimerDuration).toString());
           currentOptionWidget = timerSelection();
         });
       },
       data: availableTimerDurations,
     );
   }
-
 }
-

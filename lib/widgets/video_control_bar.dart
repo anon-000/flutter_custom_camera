@@ -6,81 +6,102 @@ import 'package:flutter/material.dart';
 ///
 
 class VideoControlBar extends StatelessWidget {
-  final Function onFlip;
-  final Function onFLash;
-  final Function onSpeed;
-  final Function onBeauty;
-  final Function onTimer;
+  final Function? onFlip;
+  final Function? onFLash;
+  final Function? onSpeed;
+  final Function? onBeauty;
+  final Function? onTimer;
   final bool isFlashOn;
-  VideoControlBar({this.onFlip, this.onFLash,this.onBeauty, this.onSpeed, this.onTimer, this.isFlashOn=false});
+
+  VideoControlBar(
+      {this.onFlip,
+      this.onFLash,
+      this.onBeauty,
+      this.onSpeed,
+      this.onTimer,
+      this.isFlashOn = false});
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.black.withOpacity(0.3)
+              shape: BoxShape.circle, color: Colors.black.withOpacity(0.3)),
+          child: IconButton(
+            icon: Icon(Icons.switch_camera),
+            onPressed: () {
+              onFlip!.call();
+            },
+            color: Colors.white,
           ),
-          child: IconButton(icon: Icon(Icons.switch_camera), onPressed: () {
-            onFlip();
-          }, color: Colors.white,),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 4, bottom: 10),
-          child: Text("Flip", style: TextStyle(color: Colors.white, fontSize: 12),),
+          child: Text(
+            "Flip",
+            style: TextStyle(color: Colors.white, fontSize: 12),
+          ),
         ),
         Container(
           decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.black.withOpacity(0.3)
-          ),
-          child: IconButton(icon: Icon(Icons.directions_run), onPressed: () {
-            onSpeed();
-          }, color: Colors.white),
+              shape: BoxShape.circle, color: Colors.black.withOpacity(0.3)),
+          child: IconButton(
+              icon: Icon(Icons.directions_run),
+              onPressed: () {
+                onSpeed!.call();
+              },
+              color: Colors.white),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 4, bottom: 10),
-          child: Text("Speed",  style: TextStyle(color: Colors.white, fontSize: 12)),
+          child: Text("Speed",
+              style: TextStyle(color: Colors.white, fontSize: 12)),
         ),
         Container(
           decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.black.withOpacity(0.3)
-          ),
-          child: IconButton(icon: Icon(Icons.brush), onPressed: () {
-            onBeauty();
-          }, color: Colors.white),
+              shape: BoxShape.circle, color: Colors.black.withOpacity(0.3)),
+          child: IconButton(
+              icon: Icon(Icons.brush),
+              onPressed: () {
+                onBeauty!.call();
+              },
+              color: Colors.white),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 4, bottom: 10),
-          child: Text("Beauty",  style: TextStyle(color: Colors.white, fontSize: 12)),
+          child: Text("Beauty",
+              style: TextStyle(color: Colors.white, fontSize: 12)),
         ),
         Container(
           decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.black.withOpacity(0.3)
-          ),
-          child: IconButton(icon: Icon(Icons.timer), onPressed: () {
-            onTimer();
-          }, color: Colors.white),
+              shape: BoxShape.circle, color: Colors.black.withOpacity(0.3)),
+          child: IconButton(
+              icon: Icon(Icons.timer),
+              onPressed: () {
+                onTimer!.call();
+              },
+              color: Colors.white),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 4, bottom: 10),
-          child: Text("Timer",  style: TextStyle(color: Colors.white, fontSize: 12)),
+          child: Text("Timer",
+              style: TextStyle(color: Colors.white, fontSize: 12)),
         ),
         Container(
           decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.black.withOpacity(0.3)
-          ),
-          child: IconButton(icon: Icon(isFlashOn?Icons.flash_off:Icons.flash_on), onPressed: () {
-            onFLash();
-          }, color: Colors.white),
+              shape: BoxShape.circle, color: Colors.black.withOpacity(0.3)),
+          child: IconButton(
+              icon: Icon(isFlashOn ? Icons.flash_off : Icons.flash_on),
+              onPressed: () {
+                onFLash!.call();
+              },
+              color: Colors.white),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 4, bottom: 10),
-          child: Text("Flash",  style: TextStyle(color: Colors.white, fontSize: 12)),
+          child: Text("Flash",
+              style: TextStyle(color: Colors.white, fontSize: 12)),
         ),
       ],
     );

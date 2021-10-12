@@ -14,10 +14,10 @@ class VideoDatum {
     this.videoLength
   });
 
-  String path ;
-  int videoLength;
-  VideoSpeed videoSpeed;
-  BeautyLevel beautyLevel;
+  String? path ;
+  int? videoLength;
+  VideoSpeed? videoSpeed;
+  BeautyLevel? beautyLevel;
 
   factory VideoDatum.fromJson(Map<String, dynamic> json) => VideoDatum(
     path: json["total"] ?? '',
