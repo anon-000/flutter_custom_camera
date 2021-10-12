@@ -4,31 +4,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+enum CameraType { front, back, none }
 
-enum CameraType{
-  front,
-  back,
-  none
-}
+enum VideoSpeed { epic, slow, normal, fast, lapse }
 
-enum VideoSpeed{
-  epic,
-  slow,
-  normal,
-  fast,
-  lapse
-}
-
-enum BeautyLevel{
-  none,
-  low,
-  medium,
-  high
-}
-
-
-
-
+enum BeautyLevel { none, low, medium, high }
 
 class SnackBarHelper {
   static void show(String title, String message) {
@@ -40,7 +20,7 @@ class SnackBarHelper {
   }
 
   static void showLoader(Future onProgress,
-      {String title, String message}) async {
+      {String title = '', String message = ''}) async {
     Get.snackbar(title ?? '', message ?? '',
         showProgressIndicator: onProgress != null,
         snackPosition: SnackPosition.BOTTOM,
@@ -48,8 +28,7 @@ class SnackBarHelper {
         animationDuration: const Duration(milliseconds: 300),
         margin: const EdgeInsets.all(16));
     onProgress.catchError((e) {}).whenComplete(() {
-      if (Get.isSnackbarOpen) Get.back();
+      if (Get.isSnackbarOpen!) Get.back();
     });
   }
 }
-
